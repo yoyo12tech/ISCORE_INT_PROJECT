@@ -1,45 +1,23 @@
-// External variables
-const express = require("express");
-const mongoose = require('mongoose');
-mongoose.set('strictQuery', false);
-require("dotenv").config();
-const {createUser,getUsers, updateUser, deleteUser} = require("./Routes/userController");
-const MongoURI = process.env.MONGO_URI ;
-
-
-//App variables
+const express = require('express');
+const userController = require('./Presentation/userController'); // Import userController
+const connectDB = require('./Infrastructure/database/connection'); // Import connectDB function
+require('dotenv').config();
+const cookieParser = require('cookie-parser');  
 const app = express();
-const port = process.env.PORT || "8000";
+const port = process.env.PORT || 8000;
+
+// MongoDB connection
+connectDB();
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
 
 
-// configurations
-// Mongo DB
-mongoose.connect(MongoURI)
-.then(()=>{
-  console.log("MongoDB is now connected!")
-// Starting server
- app.listen(port, () => {
-    console.log(`Listening to requests on http://localhost:${port}`);
-  })
-})
-.catch(err => console.log(err));
-/*
-                                                    Start of your code
-*/
-app.get("/home", (req, res) => {
-    res.status(200).send("You have everything installed!");
-  });
+// Middleware
+app.use(express.json()); // Parse incoming JSON requests
+app.use(cookieParser()); // Parse cookies in the request headers
 
-// #Routing to userController here
-
-app.use(express.json()); // Enable JSON body parsing and is middleware
-app.post("/addUser",createUser);
-app.get("/users", getUsers);
-app.put("/updateUser/:id", updateUser);
-app.delete("/deleteUser/:id", deleteUser);
-
-
-/*
-                                                    End of your code
-*/
+// Use the routes from userController
+app.use('/api', userController); // Prefix routes with /api
 
