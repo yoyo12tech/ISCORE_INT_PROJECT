@@ -17,6 +17,7 @@ const checkAuth = (req, res, next) => {
     req.user = {
       email: payload.email, // Extracting email from token payload
     };
+    console.log('User authenticated: ', req.user.email);
 
     // Proceed to the next middleware or route handler
     next();

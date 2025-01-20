@@ -26,6 +26,17 @@ router.post('/login', async (req, res) => {
   }
 });
 
+//Get user email and Name
+router.get('/userInfo', checkAuth,async (req, res) => {
+  try {
+    console.log(req.user.email);
+    const user = await UserService.getUserInfo(req.user.email);
+    res.status(200).json({name:user.name,email:user.email}); // Return the user
+  } catch (error) {
+    res.status(500).json({ message: error.message }); // Handle errors
+  }
+});
+
 // Get all users
 router.get('/users',checkAuth, async (req, res) => {
   try {

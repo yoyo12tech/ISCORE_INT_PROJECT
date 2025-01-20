@@ -20,7 +20,7 @@ class UserRepository {
     await userDoc.save();
 
     // Return the created User instance, including password (you can choose not to return password if you don't want to expose it)
-    return new User(userDoc.name, userDoc.email, userDoc.age, userDoc.password);
+    return user;
   }
 
   // Get a user by ID
@@ -46,8 +46,16 @@ class UserRepository {
       if (!userDoc) {
         return null; // Return null if user is not found
       }
-      // Return a new User instance with the user data
-      return new User(userDoc.name, userDoc.email, userDoc.age, userDoc.password);
+      // Instantiate the User object for internal logic, but return plain object for API responses
+     const user = new User(userDoc.name, userDoc.email, userDoc.age, userDoc.password);
+      // Return only the necessary data
+      return {
+        name: user.name,
+        email: user.email,
+        age: user.age,
+        password: user.password,
+          // Don't return password for security reasons
+    };
     } catch (error) {
       throw new Error('Error fetching user by email: ' + error.message);
     }

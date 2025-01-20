@@ -2,11 +2,10 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 class JwtService {
-  static generateToken(userId, email) {
+  static generateToken(email) {
     const payload = {
       email
     };
-
     // Use a secret key to sign the JWT
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
