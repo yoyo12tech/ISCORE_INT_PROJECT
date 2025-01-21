@@ -6,10 +6,6 @@ class User {
         this.password = password;
     }
 
-    isNonEmpty
-
-    isAdult() {
-        return this.age >= 18;
-    }   
+    
 }
 module.exports = User;

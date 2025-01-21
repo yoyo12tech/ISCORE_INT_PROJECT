@@ -1,36 +1,35 @@
 const express = require('express');
 const cors = require('cors');
-const userController = require('./Presentation/userController'); // Import userController
-const connectDB = require('./Infrastructure/database/connection'); // Import connectDB function
+const cookieParser = require('cookie-parser');
+const connectDB = require('./Infrastructure/database/connection');
+const UserModel = require('./Infrastructure/Models/UserSchema');
+const UserRepository = require('./Infrastructure/DbContext/UserRepository');
+const UserService = require('./Application/UserService');
+const UserController = require('./Presentation/Controllers/userController');
+const userRoutes = require('./Presentation/Routes/userRoutes');
 require('dotenv').config();
-const cookieParser = require('cookie-parser');  
+
+const app = express();
 const port = process.env.PORT || 8000;
 
-//Initialize express
-const app = express();
+const mongoURI = process.env.MONGO_URI;
+connectDB(mongoURI);
 
+//Dependency Injection
+const userRepository = new UserRepository(UserModel);
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
 
-// MongoDB connection
-connectDB();
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
-
-// Enable CORS for all routes
+app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:3000',        // Allow requests from your React app
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH','OPTIONS'], // Add PATCH method
-  credentials: true,                      // Allow cookies if needed (for example, for session management)
-}));// This will allow all domains to make requests to your backend
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  credentials: true,
+}));
 
+app.use('/api', userRoutes(userController));
 
-
-
-// Middleware
-app.use(express.json()); // Parse incoming JSON requests
-app.use(cookieParser()); // Parse cookies in the request headers
-
-// Use the routes from userController
-app.use('/api', userController); // Prefix routes with /api
-
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
